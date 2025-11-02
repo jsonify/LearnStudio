@@ -1,0 +1,17 @@
+{
+  "name": "LearnStudio",
+  "tree": {
+    "$className": "DataModel",
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService"
+    },
+
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "LearnStudio": {
+        "$path": "src"
+      }
+    }
+  }
+}
