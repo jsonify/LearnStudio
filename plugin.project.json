@@ -29,6 +29,33 @@
           "$path": "src/UI/Components/TabPanel.lua"
         }
       }
+    },
+    "Core": {
+      "$className": "Folder",
+      "TutorialEngine": {
+        "$path": "src/Core/TutorialEngine.lua"
+      },
+      "StudioMonitor": {
+        "$path": "src/Core/StudioMonitor.lua"
+      }
+    },
+    "Data": {
+      "$className": "Folder",
+      "Tutorials": {
+        "$className": "Folder",
+        "TutorialSchema": {
+          "$path": "src/Data/Tutorials/TutorialSchema.lua"
+        },
+        "Tutorial_01_InsertFirstPart": {
+          "$path": "src/Data/Tutorials/Tutorial_01_InsertFirstPart.lua"
+        },
+        "Tutorial_02_MovingPlatform": {
+          "$path": "src/Data/Tutorials/Tutorial_02_MovingPlatform.lua"
+        },
+        "Tutorial_03_ClickableButton": {
+          "$path": "src/Data/Tutorials/Tutorial_03_ClickableButton.lua"
+        }
+      }
     }
   }
 }

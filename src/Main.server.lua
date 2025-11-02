@@ -52,11 +52,35 @@ local TutorialPanel = require(script.Parent.UI.TutorialPanel)
 local CodeExplainer = require(script.Parent.UI.CodeExplainer)
 local Dashboard = require(script.Parent.UI.Dashboard)
 
+-- Import Core modules
+local TutorialEngine = require(script.Parent.Core.TutorialEngine)
+local StudioMonitor = require(script.Parent.Core.StudioMonitor)
+
 -- Store references for cleanup
 local uiComponents = {}
+local coreComponents = {}
+
+-- Initialize core systems
+local function initializeCore()
+	-- Create tutorial engine
+	local tutorialEngine = TutorialEngine.new(plugin)
+	coreComponents.tutorialEngine = tutorialEngine
+
+	-- Create and start studio monitor
+	local studioMonitor = StudioMonitor.new(tutorialEngine)
+	studioMonitor:startMonitoring()
+	coreComponents.studioMonitor = studioMonitor
+
+	print("[LearnStudio] Core systems initialized")
+
+	return tutorialEngine, studioMonitor
+end
 
 -- Initialize UI
 local function initializeUI()
+	-- Initialize core systems first
+	local tutorialEngine, studioMonitor = initializeCore()
+
 	-- Create basic UI structure
 	local container = Instance.new("Frame")
 	container.Name = "MainContainer"
@@ -103,8 +127,11 @@ local function initializeUI()
 	panelContainer.BorderSizePixel = 0
 	panelContainer.Parent = content
 
-	-- Create tab content panels
-	local tutorialPanel = TutorialPanel.new({ parent = panelContainer })
+	-- Create tab content panels (pass tutorialEngine to TutorialPanel)
+	local tutorialPanel = TutorialPanel.new({
+		parent = panelContainer,
+		tutorialEngine = tutorialEngine
+	})
 	local codeExplainer = CodeExplainer.new({ parent = panelContainer })
 	local dashboard = Dashboard.new({ parent = panelContainer })
 
@@ -156,6 +183,15 @@ initializeUI()
 
 -- Clean up on plugin unload
 plugin.Unloading:Connect(function()
+	-- Stop and destroy core systems
+	if coreComponents.studioMonitor then
+		coreComponents.studioMonitor:destroy()
+	end
+
+	if coreComponents.tutorialEngine then
+		coreComponents.tutorialEngine:destroy()
+	end
+
 	-- Destroy tab system
 	if uiComponents.tabSystem then
 		uiComponents.tabSystem:destroy()
