@@ -1,6 +1,34 @@
 {
   "name": "LearnStudio",
   "tree": {
-    "$path": "src/Main.server.lua"
+    "$className": "Script",
+    "$ignoreUnknownInstances": true,
+    "Main": {
+      "$path": "src/Main.server.lua"
+    },
+    "UI": {
+      "$className": "Folder",
+      "Theme": {
+        "$path": "src/UI/Theme.lua"
+      },
+      "TutorialPanel": {
+        "$path": "src/UI/TutorialPanel.lua"
+      },
+      "CodeExplainer": {
+        "$path": "src/UI/CodeExplainer.lua"
+      },
+      "Dashboard": {
+        "$path": "src/UI/Dashboard.lua"
+      },
+      "Components": {
+        "$className": "Folder",
+        "TabSystem": {
+          "$path": "src/UI/Components/TabSystem.lua"
+        },
+        "TabPanel": {
+          "$path": "src/UI/Components/TabPanel.lua"
+        }
+      }
+    }
   }
 }

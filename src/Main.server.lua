@@ -45,21 +45,31 @@ mainWidget:GetPropertyChangedSignal("Enabled"):Connect(function()
 	toggleButton:SetActive(mainWidget.Enabled)
 end)
 
+-- Import UI modules
+local Theme = require(script.Parent.UI.Theme)
+local TabSystem = require(script.Parent.UI.Components.TabSystem)
+local TutorialPanel = require(script.Parent.UI.TutorialPanel)
+local CodeExplainer = require(script.Parent.UI.CodeExplainer)
+local Dashboard = require(script.Parent.UI.Dashboard)
+
+-- Store references for cleanup
+local uiComponents = {}
+
 -- Initialize UI
 local function initializeUI()
 	-- Create basic UI structure
 	local container = Instance.new("Frame")
 	container.Name = "MainContainer"
 	container.Size = UDim2.new(1, 0, 1, 0)
-	container.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+	container.BackgroundColor3 = Theme.Colors.Background.Secondary
 	container.BorderSizePixel = 0
 	container.Parent = mainWidget
 
 	-- Header
 	local header = Instance.new("Frame")
 	header.Name = "Header"
-	header.Size = UDim2.new(1, 0, 0, 50)
-	header.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+	header.Size = UDim2.new(1, 0, 0, Theme.Spacing.Dimensions.HeaderHeight)
+	header.BackgroundColor3 = Theme.Colors.Background.Header
 	header.BorderSizePixel = 0
 	header.Parent = container
 
@@ -69,36 +79,76 @@ local function initializeUI()
 	title.Position = UDim2.new(0, 10, 0, 0)
 	title.BackgroundTransparency = 1
 	title.Text = PLUGIN_NAME .. " v" .. PLUGIN_VERSION
-	title.TextColor3 = Color3.fromRGB(255, 255, 255)
-	title.TextSize = 18
-	title.Font = Enum.Font.GothamBold
+	title.TextColor3 = Theme.Colors.Text.Primary
+	title.TextSize = Theme.Typography.Size.Large
+	title.Font = Theme.Typography.Font.Heading
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.Parent = header
 
-	-- Content area (will hold tabs later)
+	-- Content area (holds tab system and panels)
 	local content = Instance.new("Frame")
 	content.Name = "ContentArea"
-	content.Size = UDim2.new(1, 0, 1, -50)
-	content.Position = UDim2.new(0, 0, 0, 50)
-	content.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	content.Size = UDim2.new(1, 0, 1, -Theme.Spacing.Dimensions.HeaderHeight)
+	content.Position = UDim2.new(0, 0, 0, Theme.Spacing.Dimensions.HeaderHeight)
+	content.BackgroundColor3 = Theme.Colors.Background.Primary
 	content.BorderSizePixel = 0
 	content.Parent = container
 
-	-- Placeholder text
-	local placeholder = Instance.new("TextLabel")
-	placeholder.Name = "Placeholder"
-	placeholder.Size = UDim2.new(1, -40, 1, -40)
-	placeholder.Position = UDim2.new(0, 20, 0, 20)
-	placeholder.BackgroundTransparency = 1
-	placeholder.Text = "LearnStudio Phase 1 Setup Complete!\n\nNext steps:\n• Add tutorial content\n• Implement code analyzer\n• Build interactive UI components"
-	placeholder.TextColor3 = Color3.fromRGB(200, 200, 200)
-	placeholder.TextSize = 16
-	placeholder.Font = Enum.Font.Gotham
-	placeholder.TextWrapped = true
-	placeholder.TextYAlignment = Enum.TextYAlignment.Top
-	placeholder.Parent = content
+	-- Create tab panel container (right of sidebar)
+	local panelContainer = Instance.new("Frame")
+	panelContainer.Name = "PanelContainer"
+	panelContainer.Size = UDim2.new(1, -Theme.Spacing.Dimensions.SidebarWidth, 1, 0)
+	panelContainer.Position = UDim2.new(0, Theme.Spacing.Dimensions.SidebarWidth, 0, 0)
+	panelContainer.BackgroundColor3 = Theme.Colors.Background.Primary
+	panelContainer.BorderSizePixel = 0
+	panelContainer.Parent = content
 
-	print("[LearnStudio] Plugin initialized successfully!")
+	-- Create tab content panels
+	local tutorialPanel = TutorialPanel.new({ parent = panelContainer })
+	local codeExplainer = CodeExplainer.new({ parent = panelContainer })
+	local dashboard = Dashboard.new({ parent = panelContainer })
+
+	-- Store panels for tab switching
+	local panels = {
+		tutorialPanel,
+		codeExplainer,
+		dashboard
+	}
+
+	-- Tab switching handler
+	local function onTabChange(tabIndex, tabName)
+		-- Hide all panels
+		for _, panel in ipairs(panels) do
+			panel:hide()
+		end
+
+		-- Show the selected panel
+		panels[tabIndex]:show()
+
+		print("[LearnStudio] Switched to tab:", tabName)
+	end
+
+	-- Create tab system
+	local tabSystem = TabSystem.new({
+		parent = content,
+		tabs = {
+			{ name = "Tutorials" },
+			{ name = "Code Help" },
+			{ name = "Dashboard" }
+		},
+		defaultTab = 1,
+		onTabChange = onTabChange
+	})
+
+	-- Show the default tab panel
+	panels[1]:show()
+
+	-- Store references for cleanup
+	uiComponents.container = container
+	uiComponents.tabSystem = tabSystem
+	uiComponents.panels = panels
+
+	print("[LearnStudio] Plugin initialized successfully with tab system!")
 end
 
 -- Initialize the plugin
@@ -106,6 +156,22 @@ initializeUI()
 
 -- Clean up on plugin unload
 plugin.Unloading:Connect(function()
-	mainWidget:Destroy()
-	print("[LearnStudio] Plugin unloaded")
+	-- Destroy tab system
+	if uiComponents.tabSystem then
+		uiComponents.tabSystem:destroy()
+	end
+
+	-- Destroy all panels
+	if uiComponents.panels then
+		for _, panel in ipairs(uiComponents.panels) do
+			panel:destroy()
+		end
+	end
+
+	-- Destroy main widget
+	if mainWidget then
+		mainWidget:Destroy()
+	end
+
+	print("[LearnStudio] Plugin unloaded and cleaned up")
 end)
