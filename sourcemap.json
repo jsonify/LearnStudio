@@ -1,0 +1,1 @@
+{"name":"LearnStudio","className":"DataModel","filePaths":["default.project.json"],"children":[{"name":"ServerScriptService","className":"ServerScriptService"},{"name":"ServerStorage","className":"ServerStorage","children":[{"name":"LearnStudio","className":"Folder","children":[{"name":"Main","className":"Script","filePaths":["src/Main.server.lua"]}]}]}]}

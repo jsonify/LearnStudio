@@ -1,0 +1,6 @@
+{
+  "name": "LearnStudio",
+  "tree": {
+    "$path": "src/Main.server.lua"
+  }
+}
